@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvPhoto"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent" />
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_weight="9"
+        android:gravity="center_horizontal">
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/avPre"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:background="@mipmap/if_resultset_first_36377"
+            android:layout_marginLeft="30dp"
+            android:layout_gravity="center">
+            >
+        </android.support.v7.widget.AppCompatImageView>
+        <TextView
+            android:id="@+id/tv_current_page"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="1 . . ."
+            android:textSize="22dp"
+            android:layout_gravity="center"/>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/avNext"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:background="@mipmap/if_resultset_last_36378"
+            android:layout_marginRight="30dp"
+            android:layout_gravity="center">
+        </android.support.v7.widget.AppCompatImageView>
+    </LinearLayout>
+</LinearLayout>

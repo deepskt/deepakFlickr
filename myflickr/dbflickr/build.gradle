@@ -1,0 +1,13 @@
+apply plugin: 'java'
+apply plugin: 'application'
+mainClassName = "com.deepak.dbflickr.DbBuilder"
+sourceCompatibility = "1.8"
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'de.greenrobot:greendao-generator:2.1.0'
+}
+
+sourceCompatibility = "7"
+targetCompatibility = "7"
