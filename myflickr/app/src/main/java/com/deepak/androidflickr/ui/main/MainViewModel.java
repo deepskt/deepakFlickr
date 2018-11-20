@@ -9,6 +9,7 @@ import com.deepak.androidflickr.manager.DBManager;
 import com.deepak.androidflickr.util.Tracer;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 public class MainViewModel extends ViewModel {

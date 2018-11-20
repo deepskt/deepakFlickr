@@ -1,23 +1,29 @@
 package com.deepak.androidflickr;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.DragEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import com.deepak.androidflickr.backgroundTask.ImageDataDBTask;
 import com.deepak.androidflickr.database.PhotoFlickr;
 import com.deepak.androidflickr.interfase.DataRefreshListener;
 import com.deepak.androidflickr.interfase.FlickrDataListner;
 import com.deepak.androidflickr.loader.FlickrDataLoader;
+import com.deepak.androidflickr.manager.DBManager;
 import com.deepak.androidflickr.model.ErrorD;
 import com.deepak.androidflickr.model.FlickrResponseData;
 import com.deepak.androidflickr.ui.main.MainViewModel;
 import com.deepak.androidflickr.ui.main.adapter.FlickrDataAdapter;
 import com.deepak.androidflickr.ui.main.dialog.ProgressDialog;
+import com.deepak.androidflickr.util.Tracer;
 
 import java.util.List;
 
@@ -36,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FlickrDataAdapter mFlickrDataAdapter;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,12 +57,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mProgressDialog = new ProgressDialog(this);
         mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         mFLoader = new FlickrDataLoader();
-        mFlickrDataAdapter = new FlickrDataAdapter(dataRefreshListener);
+        mFlickrDataAdapter = new FlickrDataAdapter(adapterRefreshListener);
         recyclerView.setAdapter(mFlickrDataAdapter);
-        if(photoFlickrList != null && photoFlickrList.size() > 0 ){
-            mFlickrDataAdapter.setDataMap(photoFlickrList);
-        }else{
-            loadPage(flickrDataListner,currentPage);
+        loadPage(flickrDataListner,currentPage);
+
+    }
+
+    private void getImageData() {
+        Tracer.debug(TAG," getImageData "+" "+currentPage);
+        Tracer.debug(TAG," getImageData "+" "+DBManager.getPhotoWithoutImageData(currentPage).size());
+        if(DBManager.getPhotoWithoutImageData(currentPage).size() > 0) {
+            mProgressDialog.show("Loading Image Data...");
+            ImageDataDBTask imageDataDBTask = new ImageDataDBTask(dataRefreshListener);
+            imageDataDBTask.execute(DBManager.getPhotoWithoutImageData(currentPage));
         }
     }
 
@@ -77,25 +89,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void loadPage(FlickrDataListner flickrDataListner, int currentPage) {
         if(currentPage > 0) {
-            if(mViewModel.getPhotolist(currentPage)!= null && mViewModel.getPhotolist(currentPage).size() > 0 ){
+            if(mViewModel.getPhotolist(currentPage)!= null && mViewModel.getPhotolist(currentPage).size() > 0){
                 setData();
             }else {
-                mProgressDialog.show("Loading data . . .");
+                mProgressDialog.show("Fetching Images data . . .");
                 mFLoader.getFlickerData(flickrDataListner, currentPage);
             }
         }
     }
 
     protected void setData(){
-        tvPage.setText(String.valueOf(currentPage));
-        mFlickrDataAdapter.setDataMap(mViewModel.getPhotolist(currentPage));
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvPage.setText(String.valueOf(currentPage));
+                mFlickrDataAdapter.setDataMap(mViewModel.getPhotolist(currentPage));
+            }
+        });
     }
 
     FlickrDataListner flickrDataListner = new FlickrDataListner() {
         @Override
         public void onData(FlickrResponseData data) {
             mProgressDialog.dismiss();
-            setData();
+            getImageData();
         }
 
         @Override
@@ -108,7 +125,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     DataRefreshListener dataRefreshListener = new DataRefreshListener() {
         @Override
         public void onRefresh() {
-            mFlickrDataAdapter.setDataMap(mViewModel.getPhotolist(currentPage));
+            mProgressDialog.dismiss();
+            loadPage(flickrDataListner,currentPage);
+        }
+
+        @Override
+        public void onDataFetch() {
+           // getImageData();
         }
     };
+
+    DataRefreshListener adapterRefreshListener = new DataRefreshListener() {
+        @Override
+        public void onRefresh() {
+        }
+
+        @Override
+        public void onDataFetch() {
+            getImageData();
+        }
+    };
+
 }

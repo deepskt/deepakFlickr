@@ -68,7 +68,6 @@ public class ProgressDialog {
         Tracer.debug(TAG," show "+" ");
         if (!((Activity) mContext).isFinishing() && !mDialog.isShowing()) {
             Tracer.debug(TAG," show  called"+" ");
-
             mDialog.show();
         }
     }

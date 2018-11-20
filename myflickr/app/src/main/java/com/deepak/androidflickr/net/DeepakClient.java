@@ -5,8 +5,10 @@ import com.deepak.androidflickr.Config;
 import com.deepak.androidflickr.util.Tracer;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.BinaryHttpResponseHandler;
 import com.loopj.android.http.MySSLSocketFactory;
 import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.SyncHttpClient;
 
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -32,6 +34,7 @@ public class DeepakClient {
     private final int timeout = 20000;
 
     private final AsyncHttpClient clientGet;
+    private final  SyncHttpClient syncHttpClientGet;
     private MySSLSocketFactory socketFactory;
 
     /**
@@ -55,6 +58,11 @@ public class DeepakClient {
         clientGet.setMaxRetriesAndTimeout(0,timeout);
         clientGet.setResponseTimeout(timeout);
 
+        syncHttpClientGet = new SyncHttpClient();
+        syncHttpClientGet.setTimeout(timeout);
+        syncHttpClientGet.setMaxRetriesAndTimeout(0,timeout);
+        syncHttpClientGet.setResponseTimeout(timeout);
+
         try {
             SchemeRegistry schemeRegitry1 = clientGet.getHttpClient().getConnectionManager().getSchemeRegistry();
             schemeRegitry1.register(new Scheme("https", new TlsSniSocketFactory(), 443));
@@ -74,6 +82,9 @@ public class DeepakClient {
         clientGet.addHeader("Accept", "application/json");
         clientGet.addHeader("Content-Type", "application/json");
         clientGet.addHeader("Accept-Encoding", "gzip");
+
+        syncHttpClientGet.addHeader("Accept", "application/json");
+        syncHttpClientGet.addHeader("Content-Type", "image/jpeg");
     }
 
     /**
@@ -103,6 +114,15 @@ public class DeepakClient {
     public void get(String url, RequestParams params,
                     AsyncHttpResponseHandler responseHandler) {
         clientGet.get(url, params, responseHandler);
+    }
+
+    /**
+     * @param url
+     * @param responseHandler
+     */
+    public void syncget(String url, RequestParams params,
+                    BinaryHttpResponseHandler responseHandler) {
+        syncHttpClientGet.get(url, params, responseHandler);
     }
 
 

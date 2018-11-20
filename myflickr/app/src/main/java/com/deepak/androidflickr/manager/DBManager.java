@@ -54,10 +54,15 @@ public class DBManager {
 
     public synchronized  static List<PhotoFlickr>getPhotos(int page){
         Tracer.debug(TAG," getPhotos "+" ");
-        return mPhotoFlickrDao.queryBuilder().where(PhotoFlickrDao.Properties.Page.eq(page)).list();
+        return mPhotoFlickrDao.queryBuilder().where(PhotoFlickrDao.Properties.Page.eq(page),PhotoFlickrDao.Properties.ImageData.isNotNull()).list();
     }
 
     public static void updatePhoto(PhotoFlickr photoFlickr) {
         mPhotoFlickrDao.updateInTx(photoFlickr);
+    }
+
+    public static List<PhotoFlickr> getPhotoWithoutImageData(int page) {
+        return mPhotoFlickrDao.queryBuilder().where(PhotoFlickrDao.Properties.Page.eq(page),PhotoFlickrDao.Properties.ImageData.isNull()).limit(5).list();
+
     }
 }

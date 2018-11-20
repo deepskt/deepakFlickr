@@ -22,7 +22,14 @@ public class FlickrDataLoader extends BaseLoader {
 
     public void getImageData(FlickrImageDataListener listener, String url){
         Tracer.debug(TAG," getImageData "+" "+url);
-        requestGet(url,null,listener);
+        requestSyncGet(url,null,listener);
+    }
+
+    @Override
+    protected void onSuccess(byte[] data, BaseListener baseListener) {
+        if(baseListener instanceof FlickrImageDataListener){
+            ((FlickrImageDataListener) baseListener).imageData(data);
+        }
     }
 
     @Override
@@ -36,11 +43,7 @@ public class FlickrDataLoader extends BaseLoader {
             }else {
                 baseListner.onFailure(new ErrorD("No Data Found", 0));
             }
-        }else if(baseListner instanceof FlickrImageDataListener){
-            Tracer.debug(TAG," onSuccess "+" "+json);
-            ((FlickrImageDataListener) baseListner).imageData(json.getBytes());
         }
-
     }
 
     @Override
